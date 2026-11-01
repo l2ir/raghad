@@ -34,6 +34,34 @@ def _parse_challenge(value):
     return scheme, params
 
 
+def _open_socket(host, port):
+    """Connect directly, or through the HTTPS proxy (CONNECT tunnel) when one is set,
+    since cloud sandboxes have no direct internet route."""
+    import base64
+    import urllib.parse
+    proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+    if not proxy:
+        return socket.create_connection((host, port), timeout=15)
+    u = urllib.parse.urlparse(proxy)
+    s = socket.create_connection((u.hostname, u.port or 80), timeout=15)
+    auth = ""
+    if u.username:
+        cred = f"{urllib.parse.unquote(u.username)}:{urllib.parse.unquote(u.password or '')}"
+        auth = "Proxy-Authorization: Basic " + base64.b64encode(cred.encode()).decode() + "\r\n"
+    s.sendall(f"CONNECT {host}:{port} HTTP/1.1\r\nHost: {host}:{port}\r\n{auth}\r\n".encode())
+    resp = b""
+    while b"\r\n\r\n" not in resp:
+        chunk = s.recv(4096)
+        if not chunk:
+            break
+        resp += chunk
+    line = resp.split(b"\r\n", 1)[0].decode(errors="replace")
+    if " 200" not in line:
+        s.close()
+        raise ConnectionError(f"proxy refused tunnel to {host}:{port}: {line}")
+    return s
+
+
 class SipCall:
     def __init__(self, user, password, domain="sip.linphone.org",
                  proxy=None, port=None, transport="tls"):
@@ -48,9 +76,12 @@ class SipCall:
 
     # ---- transport ----
     def _connect(self):
-        raw = socket.create_connection((self.proxy, self.port), timeout=10)
+        raw = _open_socket(self.proxy, self.port)
         if self.transport == "tls":
             ctx = ssl.create_default_context()
+            for var in ("SSL_CERT_FILE", "REQUESTS_CA_BUNDLE"):
+                if os.path.isfile(os.environ.get(var, "")):
+                    ctx.load_verify_locations(os.environ[var])
             raw = ctx.wrap_socket(raw, server_hostname=self.proxy)
         self.sock = raw
         self.local_ip, self.local_port = raw.getsockname()[:2]
