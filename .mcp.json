@@ -8,7 +8,8 @@
       "env": {
         "SIP_USER": "ren7676",
         "SIP_PASSWORD": "${SIP_PASSWORD}",
-        "SIP_TARGET": "sh6767"
+        "SIP_TARGET": "sh6767",
+        "NTFY_TOPIC": "raghad-claude-11a2604d"
       }
     }
   }

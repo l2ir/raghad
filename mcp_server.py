@@ -2,13 +2,14 @@
 import json
 import sys
 
-from sip_call import call_from_env
+from notify import alert
 
 TOOLS = [{
     "name": "call_me",
     "description": ("Ring the user's phone (Linphone app) to get their attention, "
                     "e.g. when a long task finishes or you need their input. "
-                    "The message is shown as the caller name on the phone."),
+                    "The message is shown as the caller name on the phone. "
+                    "If the call fails, sends an urgent ntfy.sh push instead."),
     "inputSchema": {
         "type": "object",
         "properties": {
@@ -43,7 +44,7 @@ for line in sys.stdin:
     elif method == "tools/call":
         args = req["params"].get("arguments") or {}
         try:
-            out = call_from_env(args.get("message") or "Claude", int(args.get("ring_seconds") or 30))
+            out = alert(args.get("message") or "Claude", int(args.get("ring_seconds") or 30))
             reply(id_, {"content": [{"type": "text", "text": out}]})
         except Exception as e:
             reply(id_, {"content": [{"type": "text", "text": f"call error: {e}"}], "isError": True})
