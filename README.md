@@ -9,9 +9,8 @@
 
 ## 2) على جهازك (كمبيوتر فيه Claude Code و Python 3)
 ```bash
-export SIP_USER=raghad-bot          # حساب البوت
-export SIP_PASSWORD='كلمة_مرور_البوت'
-export SIP_TARGET=raghad            # حسابك اللي في الجوال
+# الحسابات مضبوطة: البوت ren7676 يتصل على sh6767
+export SIP_PASSWORD='كلمة_مرور_ren7676'
 python3 sip_call.py "تجربة"          # لازم يرن جوالك
 ```
 

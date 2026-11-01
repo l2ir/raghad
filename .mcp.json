@@ -2,11 +2,13 @@
   "mcpServers": {
     "phone-caller": {
       "command": "python3",
-      "args": ["mcp_server.py"],
+      "args": [
+        "mcp_server.py"
+      ],
       "env": {
-        "SIP_USER": "${SIP_USER}",
+        "SIP_USER": "ren7676",
         "SIP_PASSWORD": "${SIP_PASSWORD}",
-        "SIP_TARGET": "${SIP_TARGET}"
+        "SIP_TARGET": "sh6767"
       }
     }
   }

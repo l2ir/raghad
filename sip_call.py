@@ -235,12 +235,12 @@ class SipCall:
 
 def call_from_env(message="Claude", ring_seconds=30):
     c = SipCall(
-        user=os.environ["SIP_USER"],
+        user=os.environ.get("SIP_USER", "ren7676"),
         password=os.environ["SIP_PASSWORD"],
         domain=os.environ.get("SIP_DOMAIN", "sip.linphone.org"),
         transport=os.environ.get("SIP_TRANSPORT", "tls"),
     )
-    return c.ring(os.environ["SIP_TARGET"], display=message, ring_seconds=ring_seconds)
+    return c.ring(os.environ.get("SIP_TARGET", "sh6767"), display=message, ring_seconds=ring_seconds)
 
 
 if __name__ == "__main__":
